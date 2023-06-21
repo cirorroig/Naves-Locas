@@ -126,7 +126,6 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
     pygame.time.set_timer(timer_disparo_dreadnaught, 1000)
     timer_partida = pygame.USEREVENT + 4
     pygame.time.set_timer(timer_partida, 1000)
-    
     #Musica
     musica = generar_musica_de_fondo()
     #Nave
@@ -135,11 +134,9 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
     #Scouts
     scouts = generar_scouts(cant_scouts)
     grupo_explosion_scout = pygame.sprite.Group()
-
     #Fragatas
     fragatas = generar_fragatas(cant_fragatas)
     grupo_explosion_fragata= pygame.sprite.Group()
-
     #Dreadnaught
     dreadnaught = Dreadnaught(ancho/2,-300,vidas_dreadnaught)
     grupo_explosion_dreadnaught= pygame.sprite.Group()
@@ -148,12 +145,13 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
     tiempo_partida = 0
     fuente = get_fuente(14)
 
-    running = True
 
     musica[0].play(-1)
     
     tiempo_disparo = 300
     ultimo_disparo = 0
+
+    running = True
     while running:
         reloj.tick(60)
         
@@ -165,16 +163,18 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
             if evento.type == pygame.QUIT:
                 running = False
                 sys.exit()
+            #Evento de disparos    
             if evento.type == pygame.MOUSEBUTTONDOWN:
-                
                 ahora = pygame.time.get_ticks()
                 if ahora - ultimo_disparo > tiempo_disparo:
                     x = nave.rect_imagen.x
                     y = nave.rect_imagen.y
                     nave.disparar(x,y)
                     ultimo_disparo = ahora
+            #Tiempo jugado
             if evento.type == timer_partida:
                 tiempo_partida += 1
+            #Timer para los disparos de los scouts
             if scouts:
                 if evento.type == timer_disparo_scout:
                     for scout in scouts:
@@ -184,6 +184,7 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
                                 scout.sonido_aparicion.play()
                                 scout.aparecio = True
                                 scout.sonido_aparicion.set_volume(0.05)
+            #Timer para los disparos de las fragatas
             if fragatas and scouts == []:
                 if evento.type == timer_disparo_fragata:
                     for fragata in fragatas:
@@ -192,6 +193,7 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
                                 fragata.sonido_aparicion.play()
                                 fragata.aparecio = True
                             fragata.disparar()
+            #Timer para los disparos del dreadnaught
             if fragatas == [] and scouts == [] and dreadnaught.muerte == False:
                 if evento.type == timer_disparo_dreadnaught :
                     if dreadnaught.hitbox.bottom > 0:
@@ -200,7 +202,7 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
                                 dreadnaught.aparecio = True
                         dreadnaught.disparar()
                     
-
+        #Movimiento de la nave principal
         lista_teclas = pygame.key.get_pressed()
         if True in lista_teclas:
             if lista_teclas[pygame.K_d] and nave.rect_imagen.x < ancho - 100:
@@ -213,23 +215,25 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
         if lista_teclas[pygame.K_d] == False and lista_teclas[pygame.K_a] == False:
             nave.en_movimiento = False
 
+        #Manejo de los motores
         if nave.en_movimiento == False:
             nave.actualizar_motor_idle(tiempo)
         else:
             nave.actualizar_motor_encendido(tiempo)
         
+        #Actualizar animacion de los proyectiles de scout
         for scout in scouts:
             for disparo in scout.lista_disparos:
                 disparo.actualizar_proyectil()
             if scout.explosion:
                 scout.explotar(grupo_explosion_scout)
-       
+        #Actualizar animacion de los proyectiles de fragata
         for fragata in fragatas:
             for disparo in fragata.lista_disparos:
                 disparo.actualizar_proyectil()
             if fragata.explosion:
                 fragata.explotar(grupo_explosion_fragata)
-
+        #Actualizar animacion de los proyectiles de nave
         for misil in nave.lista_misiles:
             misil.actualizar_misil()
                 
@@ -434,17 +438,20 @@ def mostrar_pantalla_de_puntuacion(ancho,alto,pantalla,score,murio,musica,tiempo
 
     has_muerto = fuente_principal.render("HAS MUERTO" if murio else "VICTORIA",True,colores.RED4 if murio else colores.GREEN)
     rect_muerte = has_muerto.get_rect(center = (650,150))
-
-
-    if tiempo_partida < 40:
-        aumento = 1000
-        score += 1000
-    elif tiempo_partida >= 40 and tiempo_partida <=60:
-        aumento = 500
-        score += 500
-    elif tiempo_partida >= 60 and tiempo_partida <=90:
-        aumento = 250
-        score += 250
+    
+    aumento = 0
+    
+    if murio == False:
+        if tiempo_partida < 40:
+            aumento = 1000
+            score += 1000
+        elif tiempo_partida >= 40 and tiempo_partida <=60:
+            aumento = 500
+            score += 500
+        elif tiempo_partida >= 60 and tiempo_partida <=90:
+            aumento = 250
+            score += 250
+    
 
     fuente_secundaria = get_fuente(20)
     puntaje = fuente_secundaria.render(f"Puntaje final:{score} | Tiempo final:{tiempo_partida} suma {aumento} puntos",True,colores.ANTIQUEWHITE)
@@ -469,9 +476,7 @@ def mostrar_pantalla_de_puntuacion(ancho,alto,pantalla,score,murio,musica,tiempo
         cancion.stop()
 
     sonido_fondo.play()
-
     
-
     while running:
         reloj.tick(60)
 
@@ -538,9 +543,9 @@ def leer_base_de_datos():
     with sqlite3.connect("rankings.db") as conexion:
         try:
             cursor = conexion.cursor()
-            sentencia = "SELECT * FROM Jugadores ORDER BY puntuacion DESC"
+            sentencia = "SELECT * FROM Jugadores ORDER BY puntuacion DESC LIMIT 10"
             cursor.execute(sentencia)
-            jugadores = cursor.fetchmany(10)
+            jugadores = cursor.fetchall()
             
             lista_jugadores = []
             posicion = 1
