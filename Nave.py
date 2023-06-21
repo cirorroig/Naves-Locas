@@ -75,7 +75,6 @@ class Nave:
             musica[1].stop() 
             musica[2].stop() 
             musica[3].stop()
-            self.sonido_muerte.play()
             self.explosion = True
 
     def actualizar_motor_idle(self,tiempo):
@@ -137,6 +136,7 @@ class Nave:
         return score
 
     def explotar(self,grupo_explosion_nave):
+        self.sonido_muerte.play()
         self.explosion = False
         self.muerte = True
         ruta = "assets/nave/Explosion.png"

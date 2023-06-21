@@ -38,7 +38,6 @@ class Scout(pygame.sprite.Sprite):
         self.damage = 1
 
     def actualizar(self):
-        self.ataque()
         self.pos += 1
         if self.pos > len(self.imagenes) - 1:
             self.pos = 0 
@@ -69,13 +68,10 @@ class Scout(pygame.sprite.Sprite):
             self.rect.top += 5
 
 
-    def ataque(self):
-            x,y = self.rect.center
-            self.disparar(x-9,y+4)
-
-    def disparar(self,x,y):
+    def disparar(self):
+        x,y = self.rect.center
         ruta = "assets/enemigos/scout/bala_scout.png"
-        proyectil = Proyectil(x,y,ruta,4,20,20,(20,20),(0,0))
+        proyectil = Proyectil(x-9,y+4,ruta,4,20,20,(20,20),(0,0))
         self.lista_disparos.append(proyectil)
         self.sonido_disparo.play()
 

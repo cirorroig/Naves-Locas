@@ -180,10 +180,13 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
                     for scout in scouts:
                         if scout.hitbox.bottom > 0 and scout.muerte == False:
                             scout.actualizar()
+                            scout.disparar()
                             if scout.aparecio == False:
                                 scout.sonido_aparicion.play()
                                 scout.aparecio = True
                                 scout.sonido_aparicion.set_volume(0.05)
+                        if scout.hitbox.top > 700:
+                            nave.explosion = True
             #Timer para los disparos de las fragatas
             if fragatas and scouts == []:
                 if evento.type == timer_disparo_fragata:
@@ -193,6 +196,8 @@ def jugar(ancho,alto,pantalla,cant_scouts,cant_fragatas,vidas_dreadnaught):
                                 fragata.sonido_aparicion.play()
                                 fragata.aparecio = True
                             fragata.disparar()
+                        if fragata.hitbox.top > 700:
+                            nave.explosion = True
             #Timer para los disparos del dreadnaught
             if fragatas == [] and scouts == [] and dreadnaught.muerte == False:
                 if evento.type == timer_disparo_dreadnaught :
@@ -442,10 +447,10 @@ def mostrar_pantalla_de_puntuacion(ancho,alto,pantalla,score,murio,musica,tiempo
     aumento = 0
     
     if murio == False:
-        if tiempo_partida < 40:
+        if tiempo_partida <= 50:
             aumento = 1000
             score += 1000
-        elif tiempo_partida >= 40 and tiempo_partida <=60:
+        elif tiempo_partida > 50 and tiempo_partida <=60:
             aumento = 500
             score += 500
         elif tiempo_partida >= 60 and tiempo_partida <=90:
