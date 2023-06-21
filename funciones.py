@@ -298,11 +298,11 @@ def mostrar_menu_dificultades(ancho,alto,pantalla):
                 sys.exit()
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if lista_botones[0].verificar_input(pos_mouse):
-                    jugar(ancho,alto,pantalla,5,4,5)
+                    jugar(ancho,alto,pantalla,10,4,5)
                 elif lista_botones[1].verificar_input(pos_mouse):
-                    jugar(ancho,alto,pantalla,10,6,10)
+                    jugar(ancho,alto,pantalla,15,6,10)
                 elif lista_botones[2].verificar_input(pos_mouse):
-                    jugar(ancho,alto,pantalla,15,8,15)
+                    jugar(ancho,alto,pantalla,20,8,15)
 
         pantalla.blit(texto_menu,rect_menu)
 
